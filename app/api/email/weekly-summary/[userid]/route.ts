@@ -5,7 +5,6 @@ import MissingYouEmail from "@/components/emails/missing-data"
 import { render } from "@react-email/render"
 import { generateTradingAnalysis } from "./actions/analysis"
 import { getUserData, computeTradingStats } from "./actions/user-data"
-import { Resend } from "resend"
 
 export async function POST(req: Request, props: { params: Promise<{ userid: string }> }) {
   const params = await props.params;
@@ -13,7 +12,7 @@ export async function POST(req: Request, props: { params: Promise<{ userid: stri
     // Verify that this is a legitimate request with the correct secret
     const headersList = await headers()
     const authHeader = headersList.get('authorization')
-    
+
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -55,8 +54,8 @@ export async function POST(req: Request, props: { params: Promise<{ userid: stri
 
     // Ensure URL has protocol
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || ''
-    const apiUrl = baseUrl.startsWith('http') 
-      ? baseUrl 
+    const apiUrl = baseUrl.startsWith('http')
+      ? baseUrl
       : `http://${baseUrl}`
 
     const unsubscribeUrl = `${apiUrl}/api/email/unsubscribe?email=${encodeURIComponent(user.email)}`

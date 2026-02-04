@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { PrismaClient } from "@/prisma/generated/prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 import pg from "pg"
-import { Resend } from 'resend'
+import { resend } from '@/lib/resend'
 import { createClient } from '@/server/auth'
 import TeamInvitationEmail from '@/components/emails/team-invitation'
 import { render } from "@react-email/render"
@@ -13,7 +13,6 @@ const pool = new pg.Pool({
 
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: Request) {
   try {
@@ -120,7 +119,7 @@ export async function POST(req: Request) {
     const { data, error } = await resend.emails.send({
       from: 'Deltalytix Team <team@eu.updates.deltalytix.app>',
       to: email,
-      subject: existingUser?.language === 'fr' 
+      subject: existingUser?.language === 'fr'
         ? `Invitation à rejoindre ${team.name} sur Deltalytix`
         : `Invitation to join ${team.name} on Deltalytix`,
       html: emailHtml,

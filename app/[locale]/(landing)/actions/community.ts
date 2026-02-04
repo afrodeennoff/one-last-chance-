@@ -6,12 +6,10 @@ import { PostType, PostStatus, VoteType } from '@/prisma/generated/prisma/client
 
 import { revalidatePath } from 'next/cache'
 import sharp from 'sharp'
-import { Resend } from 'resend'
+import { resend } from '@/lib/resend'
 import { formatDistanceToNow } from 'date-fns'
 import { fr, enUS } from 'date-fns/locale'
 import CommentNotificationEmail from '@/components/emails/blog/comment-notification'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Helper function to check if user is admin
 async function isAdmin(userId: string) {
@@ -218,7 +216,7 @@ export async function votePost(postId: string, voteType: VoteType) {
   }
 
   try {
-    
+
     // Check if user has already voted
     const existingVote = await prisma.vote.findUnique({
       where: {

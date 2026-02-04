@@ -3,7 +3,7 @@
 import { PrismaClient, User } from "@/prisma/generated/prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 import pg from "pg"
-import { Resend } from 'resend'
+import { resend } from '@/lib/resend'
 import NewsletterEmail from '@/components/emails/new-feature'
 import { revalidatePath } from "next/cache"
 import { parse } from "csv-parse"
@@ -73,7 +73,7 @@ export async function importSubscribers(file: File) {
     const emails = records
       .map(record => record.email)
       .filter(Boolean) // Remove any undefined or empty values
-    
+
     // Filter out invalid emails
     const validEmails = emails.filter(email => {
       return email && email.includes("@") && email.includes(".")
@@ -111,7 +111,7 @@ export async function sendNewsletter({
     if (!process.env.RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY is not configured")
     }
-    const resend = new Resend(process.env.RESEND_API_KEY)
+
 
     // get all users
     const users = await prisma.user.findMany()
@@ -121,7 +121,7 @@ export async function sendNewsletter({
     const subscribers = await prisma.newsletter.findMany({
       where: { email: { in: frenchUsers.map((user: User) => user.email) }, isActive: true },
     })
-    
+
 
 
     if (subscribers.length === 0) {
@@ -131,7 +131,7 @@ export async function sendNewsletter({
     // Send emails in batches of 100 (Resend's batch limit)
     const batchSize = 100
     const batches: typeof subscribers[] = []
-    
+
     for (let i = 0; i < subscribers.length; i += batchSize) {
       const batch = subscribers.slice(i, i + batchSize)
       batches.push(batch)
@@ -145,15 +145,15 @@ export async function sendNewsletter({
       try {
         const emailBatch = batch.map(({ email, firstName }) => {
           const unsubscribeUrl = `https://deltalytix.app/api/email/unsubscribe?email=${encodeURIComponent(email)}`
-          
+
           return {
             from: 'Deltalytix <newsletter@eu.updates.deltalytix.app>',
             to: [email],
             subject,
             reply_to: 'hugo.demenez@deltalytix.app',
-            react: NewsletterEmail({ 
-              youtubeId, 
-              introMessage, 
+            react: NewsletterEmail({
+              youtubeId,
+              introMessage,
               features,
               email,
               firstName: firstName || '',
@@ -186,13 +186,13 @@ export async function sendNewsletter({
   }
 }
 
-  
+
 export async function sendTestNewsletter(email: string, firstName: string, params: SendNewsletterParams) {
   try {
     if (!process.env.RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY is not configured")
     }
-    const resend = new Resend(process.env.RESEND_API_KEY)
+
 
     const unsubscribeUrl = `https://deltalytix.app/api/email/unsubscribe?email=${encodeURIComponent(email)}`
 
@@ -200,7 +200,7 @@ export async function sendTestNewsletter(email: string, firstName: string, param
       from: 'Deltalytix <newsletter@eu.updates.deltalytix.app>',
       to: email,
       subject: `[TEST] ${params.subject}`,
-      react: NewsletterEmail({ 
+      react: NewsletterEmail({
         youtubeId: params.youtubeId,
         introMessage: params.introMessage,
         features: params.features,

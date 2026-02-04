@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import auth from '@/locales/en/auth'
 import { createClient } from '@/server/auth'
 import { revalidatePath } from 'next/cache'
-import { Resend } from 'resend'
+import { resend } from '@/lib/resend'
 import { render } from '@react-email/render'
 import TeamInvitationEmail from '@/components/emails/team-invitation'
 
@@ -170,7 +170,7 @@ export async function getUserTeams() {
     const allTraderIds = Array.from(new Set(allTeams.flatMap(b => b.traderIds)))
     const allManagerIds = Array.from(new Set(allTeams.flatMap(b => b.managers.map(m => m.managerId))))
     const allUserIds = Array.from(new Set([...allTraderIds, ...allManagerIds]))
-    
+
     // Fetch all user details in one query
     const users = await prisma.user.findMany({
       where: {
@@ -383,7 +383,7 @@ export async function getUserTeamAccess() {
     // Get teams where user is a manager - much more efficient query!
     const managedTeams = await prisma.teamManager.findMany({
       where: { managerId: user.id },
-      include: { 
+      include: {
         team: {
           include: {
             managers: {
@@ -402,7 +402,7 @@ export async function getUserTeamAccess() {
     const allTraderIds = Array.from(new Set(managedTeams.flatMap(bm => bm.team.traderIds)))
     const allManagerIds = Array.from(new Set(managedTeams.flatMap(bm => bm.team.managers.map(m => m.managerId))))
     const allUserIds = Array.from(new Set([...allTraderIds, ...allManagerIds]))
-    
+
     // Fetch all user details in one query
     const users = await prisma.user.findMany({
       where: {
@@ -674,7 +674,7 @@ export async function sendTeamInvitation(teamId: string, traderEmail: string) {
     })
 
     // Generate join URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ||
       (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://deltalytix.app')
     const joinUrl = `${baseUrl}/teams/join?invitation=${invitation.id}`
 
@@ -695,11 +695,11 @@ export async function sendTeamInvitation(teamId: string, traderEmail: string) {
       throw new Error('RESEND_API_KEY is not configured')
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+
     const { error: emailError } = await resend.emails.send({
       from: 'Deltalytix Team <team@eu.updates.deltalytix.app>',
       to: traderEmail,
-      subject: existingUser?.language === 'fr' 
+      subject: existingUser?.language === 'fr'
         ? `Invitation à rejoindre ${team.name} sur Deltalytix`
         : `Invitation to join ${team.name} on Deltalytix`,
       html: emailHtml,
@@ -772,7 +772,7 @@ export async function getTeamInvitations(teamId: string) {
     }
   } catch (error) {
     console.error('Error getting team invitations:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'Failed to get invitations' }
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to get invitations' }
   }
 }
 
