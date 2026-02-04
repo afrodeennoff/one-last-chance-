@@ -59,36 +59,36 @@ const AICompletionExtension = Extension.create({
     return {
       startAICompletion:
         (position: number) =>
-        () => {
-          this.storage.insertPosition = position;
-          this.storage.lastInsertedLength = 0;
-          return true;
-        },
+          () => {
+            this.storage.insertPosition = position;
+            this.storage.lastInsertedLength = 0;
+            return true;
+          },
       updateAICompletion:
         (completion: string) =>
-        ({ commands }) => {
-          if (this.storage.insertPosition === null) return false;
+          ({ commands }) => {
+            if (this.storage.insertPosition === null) return false;
 
-          const delta = completion.slice(this.storage.lastInsertedLength);
+            const delta = completion.slice(this.storage.lastInsertedLength);
 
-          if (delta.length > 0) {
-            const newPosition =
-              this.storage.insertPosition + this.storage.lastInsertedLength;
-            commands.insertContentAt(newPosition, {
-              text: delta,
-              type: "text",
-            });
-            this.storage.lastInsertedLength = completion.length;
-          }
-          return true;
-        },
+            if (delta.length > 0) {
+              const newPosition =
+                this.storage.insertPosition + this.storage.lastInsertedLength;
+              commands.insertContentAt(newPosition, {
+                text: delta,
+                type: "text",
+              });
+              this.storage.lastInsertedLength = completion.length;
+            }
+            return true;
+          },
       finishAICompletion:
         () =>
-        () => {
-          this.storage.insertPosition = null;
-          this.storage.lastInsertedLength = 0;
-          return true;
-        },
+          () => {
+            this.storage.insertPosition = null;
+            this.storage.lastInsertedLength = 0;
+            return true;
+          },
     };
   },
 });
@@ -323,9 +323,6 @@ export function TiptapEditor({
       }),
       ResizableImageExtension.configure({
         inline: true,
-        HTMLAttributes: {
-          class: "rounded-lg",
-        },
       }),
       TextAlign.configure({
         types: ["heading", "paragraph"],
