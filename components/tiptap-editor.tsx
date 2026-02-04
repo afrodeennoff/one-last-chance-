@@ -410,7 +410,7 @@ export function TiptapEditor({
             if (file && editor) {
               handleImageUpload(file)
                 .then((imageUrl) => {
-                  editor.chain().focus().setImage({ src: imageUrl }).run();
+                  editor.chain().focus().insertContent({ type: 'image', attrs: { src: imageUrl } }).run();
                 })
                 .catch((error) => {
                   console.error("Failed to upload pasted image:", error);
@@ -429,7 +429,7 @@ export function TiptapEditor({
             event.preventDefault();
             handleImageUpload(file)
               .then((imageUrl) => {
-                editor.chain().focus().setImage({ src: imageUrl }).run();
+                editor.chain().focus().insertContent({ type: 'image', attrs: { src: imageUrl } }).run();
               })
               .catch((error) => {
                 console.error("Failed to upload dropped image:", error);
@@ -529,7 +529,7 @@ export function TiptapEditor({
       if (file && file.type.startsWith("image/") && editor) {
         handleImageUpload(file)
           .then((imageUrl) => {
-            editor.chain().focus().setImage({ src: imageUrl }).run();
+            editor.chain().focus().insertContent({ type: 'image', attrs: { src: imageUrl } }).run();
           })
           .catch((error) => {
             console.error("Failed to upload image:", error);
